@@ -98,3 +98,40 @@ func Attack1v2() bool {
 
 	return res
 }
+
+func Attack2v1() bool {
+	base := "RadkevichKyrylMykolayovich"
+
+	seen := make(map[[4]byte]string)
+
+	for i := 0; i < (1 << 17); i++ {
+		suffix := fmt.Sprintf("%d", i)
+		msg := []byte(base + suffix)
+
+		h := ripemd160.New()
+		h.Write(msg)
+		sum := h.Sum(nil)
+
+		last4 := [4]byte{
+			sum[len(sum)-4],
+			sum[len(sum)-3],
+			sum[len(sum)-2],
+			sum[len(sum)-1],
+		}
+
+		if prev, ok := seen[last4]; ok {
+			fmt.Println("=====================================")
+			fmt.Println("COLLISION FOUND!")
+			fmt.Printf("String 1: %s\n", prev)
+			fmt.Printf("String 2: %s\n", base+suffix)
+			fmt.Printf("Hash last 4 bytes: %x\n", last4)
+			fmt.Println("=====================================")
+			return true
+		}
+
+		seen[last4] = base + suffix
+	}
+
+	fmt.Println("No collisions found.")
+	return false
+}
